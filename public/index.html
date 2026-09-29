@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Social Media Content Creator</title>
+<link rel="stylesheet" href="/tailwind.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;800&family=Playfair+Display:wght@700&family=Montserrat:wght@700&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
+<style>
+.hidden{display:none!important}
+.f{width:100%;border:1px solid #e2e8f0;border-radius:.5rem;padding:.5rem .75rem;font-size:.875rem;background:#fff}
+.f:focus{outline:2px solid #6366f1;outline-offset:1px}
+.b{border-radius:.5rem;padding:.5rem 1rem;font-size:.875rem;font-weight:600;cursor:pointer}
+.b:disabled{opacity:.5;cursor:not-allowed}
+</style></head>
+<body class="bg-slate-100 text-slate-800">
+<header class="bg-gradient-to-r from-indigo-600 to-pink-500 text-white p-5"><h1 class="text-2xl font-bold">✨ Social Media Content Creator</h1><p id="mode" class="text-sm opacity-90">Generate captions, hashtags, posters &amp; reel ideas</p></header>
+<div id="err" role="alert" class="hidden bg-red-100 text-red-700 p-3 text-sm text-center"></div>
+<main class="max-w-7xl mx-auto p-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
+<section class="bg-white rounded-xl shadow p-4 space-y-2">
+<h2 class="font-bold">1. Your product</h2>
+<input id="name" class="f" maxlength="100" aria-label="Product or business name" placeholder="Product / business name *">
+<textarea id="description" class="f" rows="3" maxlength="1000" aria-label="Product description" placeholder="Product description *"></textarea>
+<input id="audience" class="f" maxlength="200" aria-label="Target audience" placeholder="Target audience">
+<input id="industry" class="f" maxlength="100" aria-label="Industry" placeholder="Industry">
+<input id="message" class="f" maxlength="200" aria-label="Promotional message" placeholder="Promotional message (like 20% off this week)">
+<div class="grid grid-cols-3 gap-2">
+<select id="platform" class="f" aria-label="Platform"><option>Instagram</option><option>Facebook</option><option>LinkedIn</option><option>Twitter/X</option><option>TikTok</option></select>
+<select id="tone" class="f" aria-label="Tone"><option>Friendly</option><option>Professional</option><option>Playful</option><option>Luxury</option><option>Bold</option></select>
+<select id="contentType" class="f" aria-label="Content type"><option>Post</option><option>Story</option><option>Reel</option><option>Ad</option></select></div>
+<label for="img" class="text-xs text-slate-500">Product image (optional, max 10MB, auto-resized)</label>
+<div class="flex items-center gap-2"><input id="img" type="file" accept="image/png,image/jpeg,image/gif,image/webp" class="text-sm min-w-0"><button id="rmimg" type="button" class="b bg-slate-200 hidden">Remove</button></div>
+<button id="gen" type="button" class="b w-full bg-indigo-600 text-white hover:bg-indigo-700">Generate content</button></section>
+
+<section class="bg-white rounded-xl shadow p-4 space-y-2">
+<h2 class="font-bold">2. Results <span id="prov" class="text-xs font-normal text-slate-400"></span></h2>
+<div id="loading" class="hidden text-center py-10 text-indigo-600 animate-pulse">Generating with AI…</div>
+<div id="empty" class="text-sm text-slate-400 py-10 text-center">Fill in the form and click Generate.</div>
+<div id="res" class="hidden space-y-2">
+<label class="text-xs font-semibold">Caption variations (click one to use it in the poster)</label>
+<div id="caps" class="space-y-2"></div>
+<label for="hashtags" class="text-xs font-semibold">Hashtags</label><textarea id="hashtags" class="f" rows="2"></textarea>
+<label for="cta" class="text-xs font-semibold">CTA</label><input id="cta" class="f">
+<label for="posterConcept" class="text-xs font-semibold">Poster concept</label><textarea id="posterConcept" class="f" rows="2"></textarea>
+<label for="imagePrompt" class="text-xs font-semibold">Image-generation prompt</label><textarea id="imagePrompt" class="f" rows="2"></textarea>
+<label for="reelIdea" class="text-xs font-semibold">Reel / video idea</label><textarea id="reelIdea" class="f" rows="2"></textarea>
+<label class="text-xs font-semibold">Style: colors, typography, mood</label>
+<div class="flex gap-2 items-center"><input id="c0" type="color" aria-label="Color 1"><input id="c1" type="color" aria-label="Color 2"><input id="c2" type="color" aria-label="Color 3"><input id="font" class="f min-w-0" aria-label="Font"></div>
+<input id="mood" class="f" aria-label="Mood">
+<div class="flex flex-wrap gap-2 pt-2">
+<button id="regen" type="button" class="b bg-slate-200">↻ Regenerate</button><button id="copy" type="button" class="b bg-slate-200">Copy post text</button>
+<button id="save" type="button" class="b bg-emerald-600 text-white">Save</button></div></div></section>
+
+<section class="space-y-4">
+<div class="bg-white rounded-xl shadow p-4"><h2 class="font-bold mb-2">3. Poster preview</h2>
+<div id="poster" class="aspect-square rounded-lg overflow-hidden relative flex flex-col justify-between p-6 text-center" style="background:#e2e8f0">
+<div id="pname" class="text-sm uppercase tracking-widest opacity-80">Your brand</div>
+<div class="flex flex-col items-center gap-3"><img id="pimg" alt="Product" class="hidden max-h-40 rounded-xl shadow-lg object-cover"><div id="phead" class="text-2xl font-extrabold leading-tight break-words max-w-full">Your headline</div></div>
+<div><span id="pcta" class="inline-block px-5 py-2 rounded-full font-bold text-sm">Your CTA</span></div></div><button id="dl" type="button" class="b bg-indigo-600 text-white mt-3 w-full hover:bg-indigo-700">⬇ Download poster (PNG)</button></div>
+<div class="bg-white rounded-xl shadow p-4"><h2 class="font-bold mb-2">History</h2><div id="hist" class="space-y-2 max-h-72 overflow-auto text-sm"></div></div></section>
+</main>
+<script>
+const $ = (id) => document.getElementById(id);
+const IN = ['name','description','audience','industry','message','platform','tone','contentType'];
+const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+let cur = null, image = '', sel = 0, errTimer;
+
+const err = (m) => { clearTimeout(errTimer); $('err').textContent = m; $('err').classList.toggle('hidden', !m); if (m) errTimer = setTimeout(() => err(''), 6000); };
+const fail = (e) => err(e instanceof TypeError ? 'Cannot reach the server. Is it running?' : e.message);
+
+const api = async (url, opt = {}) => {
+  const r = await fetch(url, opt.body ? { ...opt, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(opt.body) } : opt);
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || `Request failed (${r.status})`);
+  return j;
+};
+const inputs = () => Object.fromEntries(IN.map((k) => [k, $(k).value.trim()]));
+
+// Load any Google Font the AI suggests so the poster preview really uses it.
+const fontsLoaded = new Set(['Poppins', 'Playfair Display', 'Montserrat', 'Space Grotesk']);
+function loadFont(f) {
+  f = (f || '').trim();
+  if (!f || fontsLoaded.has(f) || !/^[A-Za-z0-9 ]{1,40}$/.test(f)) return;
+  fontsLoaded.add(f);
+  const l = document.createElement('link'); l.rel = 'stylesheet';
+  l.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(f).replace(/%20/g, '+') + '&display=swap';
+  document.head.append(l);
+}
+
+function fill(d) { // generated/saved content -> UI
+  cur = d; $('empty').classList.add('hidden'); $('res').classList.remove('hidden'); $('prov').textContent = d.provider ? `(${d.provider})` : '';
+  $('caps').innerHTML = '';
+  (d.captions || []).forEach((c, i) => { const t = document.createElement('textarea'); t.className = 'f cap'; t.rows = 2; t.value = c; t.onfocus = () => { sel = i; poster(); }; t.oninput = poster; $('caps').append(t); });
+  ['hashtags','cta','posterConcept','imagePrompt','reelIdea'].forEach((k) => $(k).value = d[k] || '');
+  const st = d.style || {}; (st.colors || []).slice(0, 3).forEach((c, i) => $('c' + i).value = c);
+  $('font').value = st.font || ''; $('mood').value = st.mood || ''; sel = 0; poster();
+}
+function collect() {
+  return { ...cur, inputs: inputs(), image, captions: [...document.querySelectorAll('.cap')].map((t) => t.value),
+    hashtags: $('hashtags').value, cta: $('cta').value, posterConcept: $('posterConcept').value, imagePrompt: $('imagePrompt').value, reelIdea: $('reelIdea').value,
+    style: { colors: [0,1,2].map((i) => $('c' + i).value), font: $('font').value, mood: $('mood').value } };
+}
+function poster() {
+  const [a, b, c] = [0,1,2].map((i) => $('c' + i).value), p = $('poster');
+  loadFont($('font').value);
+  p.style.background = `linear-gradient(135deg,${a},${b})`; p.style.color = c; p.style.fontFamily = `'${$('font').value}', sans-serif`;
+  $('pname').textContent = $('name').value || 'Your brand';
+  $('pcta').textContent = $('cta').value || 'Your CTA'; $('pcta').style.background = c; $('pcta').style.color = a;
+  const cap = document.querySelectorAll('.cap')[sel], first = cap ? (cap.value.match(/^[^\n]*?[.!?](?=\s|$)/) || [cap.value])[0] : '';
+  $('phead').textContent = first || $('message').value || 'Your headline';
+  if (image) { $('pimg').src = image; $('pimg').classList.remove('hidden'); } else { $('pimg').removeAttribute('src'); $('pimg').classList.add('hidden'); }
+  $('rmimg').classList.toggle('hidden', !image);
+}
+
+async function downloadPoster() {
+  const [a, b, c] = [0,1,2].map((i) => $('c' + i).value), S = 1080, cv = document.createElement('canvas'); cv.width = cv.height = S;
+  const x = cv.getContext('2d'), g = x.createLinearGradient(0, 0, S, S); g.addColorStop(0, a); g.addColorStop(1, b); x.fillStyle = g; x.fillRect(0, 0, S, S);
+  const ff = `'${$('font').value}', sans-serif`; try { await document.fonts.load(`800 60px ${ff}`); } catch {}
+  x.fillStyle = c; x.textAlign = 'center'; x.font = `600 30px ${ff}`; x.fillText(($('name').value || '').toUpperCase(), S / 2, 100);
+  let y = 420;
+  if (image) {
+    const im = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = image; });
+    const r = Math.min(560 / im.width, 400 / im.height), w = im.width * r, h = im.height * r; x.drawImage(im, (S - w) / 2, 160, w, h); y = 640;
+  }
+  x.font = `800 64px ${ff}`; const words = $('phead').textContent.split(/\s+/), lines = []; let ln = '';
+  words.forEach((w) => { if (x.measureText((ln + ' ' + w).trim()).width > 900 && ln) { lines.push(ln); ln = w; } else ln = (ln + ' ' + w).trim(); }); lines.push(ln);
+  lines.slice(0, 4).forEach((l, k) => x.fillText(l, S / 2, y + k * 78));
+  const t = $('pcta').textContent; let fs = 36; x.font = `700 ${fs}px ${ff}`; while (fs > 16 && x.measureText(t).width > 860) { fs -= 2; x.font = `700 ${fs}px ${ff}`; } const w = x.measureText(t).width + 100;
+  x.fillStyle = c; x.beginPath(); x.roundRect((S - w) / 2, 900, w, 84, 42); x.fill(); x.fillStyle = a; x.fillText(t, S / 2, 955);
+  const link = document.createElement('a'); link.download = (($('name').value || 'poster').replace(/[^a-z0-9]+/gi, '-') + '-poster.png'); link.href = cv.toDataURL('image/png'); link.click();
+}
+$('dl').onclick = () => downloadPoster().catch(() => err('Could not create the poster image.'));
+const setBusy = (on) => { $('gen').disabled = on; $('regen').disabled = on; };
+async function generate() {
+  const v = inputs();
+  if (!v.name || !v.description) { err('Please fill in the product name and description.'); (v.name ? $('description') : $('name')).focus(); return; }
+  err(''); setBusy(true); $('loading').classList.remove('hidden'); $('res').classList.add('hidden'); $('empty').classList.add('hidden');
+  try { const d = await api('/api/generate', { method: 'POST', body: v }); if (!Array.isArray(d.captions) || !d.captions.length) throw new Error('The server returned an unexpected response. Please try again.'); fill(d); if (d.warning) err(d.warning); }
+  catch (e) { fail(e); (cur ? $('res') : $('empty')).classList.remove('hidden'); }
+  finally { $('loading').classList.add('hidden'); setBusy(false); }
+}
+$('gen').onclick = generate; $('regen').onclick = generate;
+['c0','c1','c2','font','cta','name','message'].forEach((k) => $(k).oninput = poster);
+
+function shrink(f) { // downscale to <=900px JPEG: keeps requests small (Vercel body limit is 4.5MB)
+  return new Promise((ok, no) => {
+    const u = URL.createObjectURL(f), im = new Image();
+    im.onload = () => { const r = Math.min(1, 900 / Math.max(im.width, im.height)), cv = document.createElement('canvas'); cv.width = Math.round(im.width * r); cv.height = Math.round(im.height * r);
+      const x = cv.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, cv.width, cv.height); x.drawImage(im, 0, 0, cv.width, cv.height); URL.revokeObjectURL(u); ok(cv.toDataURL('image/jpeg', 0.85)); };
+    im.onerror = () => { URL.revokeObjectURL(u); no(new Error('bad image')); }; im.src = u; });
+}
+$('img').onchange = async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  if (!/^image\/(png|jpeg|gif|webp)$/.test(f.type)) { e.target.value = ''; return err('Please choose a PNG, JPG, GIF or WebP image.'); }
+  if (f.size > 10e6) { e.target.value = ''; return err('Image must be under 10MB.'); }
+  try { image = await shrink(f); poster(); } catch { e.target.value = ''; err('That file is not a valid image.'); }
+};
+$('rmimg').onclick = () => { image = ''; $('img').value = ''; poster(); };
+
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); }
+  catch { // non-secure origin (e.g. opened via LAN IP) or permission denied
+    const ta = document.createElement('textarea'); ta.value = t; ta.style.cssText = 'position:fixed;opacity:0'; document.body.append(ta); ta.select();
+    const ok = document.execCommand('copy'); ta.remove(); if (!ok) throw new Error('Copy failed - select the text and copy manually.');
+  }
+}
+$('copy').onclick = async () => {
+  try { const d = collect(); await copyText(`${d.captions[sel] || ''}\n\n${d.hashtags}\n\n${d.cta}`); $('copy').textContent = 'Copied ✓'; setTimeout(() => $('copy').textContent = 'Copy post text', 1500); }
+  catch (e) { err(e.message); }
+};
+$('save').onclick = async () => {
+  $('save').disabled = true;
+  try {
+    const d = collect(), s = cur && cur.id ? await api('/api/items/' + cur.id, { method: 'PUT', body: d }) : await api('/api/items', { method: 'POST', body: d });
+    cur.id = s.id; $('save').textContent = 'Saved ✓'; setTimeout(() => $('save').textContent = 'Save', 1500); hist();
+  } catch (e) { fail(e); } finally { $('save').disabled = false; }
+};
+
+async function hist() {
+  try {
+    const items = await api('/api/items');
+    $('hist').innerHTML = items.length ? '' : '<p class="text-slate-400">No saved content yet.</p>';
+    items.forEach((it) => {
+      const row = document.createElement('div'); row.className = 'flex justify-between items-center border rounded-lg p-2 gap-2';
+      row.innerHTML = `<div class="truncate"><b>${esc(it.inputs.name)}</b><div class="text-xs text-slate-500">${esc(it.inputs.platform)} · ${esc(new Date(it.savedAt).toLocaleDateString())}</div></div><div class="flex gap-1"><button type="button" class="o b bg-indigo-100">Open</button><button type="button" class="d b bg-red-100 text-red-700">Delete</button></div>`;
+      row.querySelector('.o').onclick = async () => {
+        try { const full = await api('/api/items/' + it.id); IN.forEach((k) => $(k).value = (full.inputs || {})[k] || ''); image = full.image || ''; fill(full); }
+        catch (e) { fail(e); }
+      };
+      row.querySelector('.d').onclick = async () => {
+        try { await api('/api/items/' + it.id, { method: 'DELETE' }); if (cur && cur.id === it.id) delete cur.id; hist(); } catch (e) { fail(e); }
+      };
+      $('hist').append(row);
+    });
+  } catch (e) { fail(e); }
+}
+
+api('/api/health').then((h) => { $('mode').textContent = h.mode === 'openai' ? `Live AI mode (${h.model})` : 'Real AI output'; }).catch(() => {});
+hist();
+</script></body></html>

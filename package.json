@@ -1,0 +1,1 @@
+{"name":"ai-social-content-creator","version":"1.0.0","private":true,"scripts":{"build":"tailwindcss -i ./src/input.css -o ./public/tailwind.css --minify","start":"node server.js","test":"node test/smoke.js","dev":"npm run build && node server.js"},"engines":{"node":">=18"},"dependencies":{"dotenv":"^16.4.5","express":"^4.19.2"},"devDependencies":{"tailwindcss":"^3.4.17"}}
