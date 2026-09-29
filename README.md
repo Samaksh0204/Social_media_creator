@@ -15,7 +15,7 @@ Static HTML + Tailwind CSS (built with the Tailwind CLI) - Node.js/Express API -
 ## Local setup
 ```
 npm install
-cp .env.example .env      # optional: add OPENAI_API_KEY
+cp .env.example .env      # optional: add GROQ_API_KEY
 npm run dev               # builds CSS and serves http://localhost:3001
 ```
 Node 18+ required. Data is stored in `data/db.json` locally (git-ignored).
@@ -31,8 +31,8 @@ Node 18+ required. Data is stored in `data/db.json` locally (git-ignored).
 ## Environment variables
 | Variable | Required | Purpose |
 |---|---|---|
-| `OPENAI_API_KEY` | No | Real AI output. Server-side only. Leave empty for demo mode. |
-| `OPENAI_MODEL` | No | Default `gpt-4o-mini` |
+| `GROQ_API_KEY` | No | Real AI output. Server-side only. Leave empty for demo mode. |
+| `GROQ_MODEL` | No | Default `gpt-4o-mini` |
 | `OPENAI_BASE_URL` | No | Default `https://api.openai.com/v1` |
 | `UPSTASH_REDIS_REST_URL` | Yes, on Vercel | Saved-content database |
 | `UPSTASH_REDIS_REST_TOKEN` | Yes, on Vercel | Saved-content database |
@@ -41,13 +41,13 @@ Node 18+ required. Data is stored in `data/db.json` locally (git-ignored).
 Frontend and API share one origin: no API URL or CORS configuration is needed.
 
 ## Demo mode
-With no `OPENAI_API_KEY` every feature works using mock content. `/api/health` reports `"mode":"demo"`.
+With no `GROQ_API_KEY` every feature works using mock content. `/api/health` reports `"mode":"demo"`.
 
 ## Deploy: GitHub -> Vercel -> Upstash
 1. Push the project to GitHub (`.env`, `node_modules`, `data/` and built CSS are git-ignored).
 2. Vercel: **Add New > Project**, import the repo, keep the defaults (`vercel.json` sets the build command, API routing and a 30 s function limit).
 3. In the project, open **Storage > Marketplace > Upstash Redis**, create a database and connect it to the project. This adds `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` (the legacy `KV_REST_API_*` names also work).
-4. **Settings > Environment Variables**: add `OPENAI_API_KEY` (and optionally `OPENAI_MODEL`).
+4. **Settings > Environment Variables**: add `GROQ_API_KEY` (and optionally `GROQ_MODEL`).
 5. Deploy, then open `/api/health`: expect `"storage":"redis"`.
 
 Without Redis on Vercel, generation still works and saving returns a clear "not configured" message (Vercel's filesystem is read-only).
