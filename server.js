@@ -288,7 +288,7 @@ process.on('unhandledRejection', (e) => console.error('Unhandled rejection:', e)
 
 if (require.main === module) {
   const port = process.env.PORT || 3001;
-  const server = app.listen(port, () => console.log(`Server on http://localhost:${port} (${process.env.GROQ_API_KEY ? 'OpenAI' : 'demo'} mode, ${REDIS ? 'Redis' : 'file'} storage)`));
+  const server = app.listen(port, () => console.log(`Server on http://localhost:${port} (${process.env.GROQ_API_KEY ? 'Groq' : 'demo'} mode, ${REDIS ? 'Redis' : 'file'} storage)`));
   server.on('error', (e) => { console.error(e.code === 'EADDRINUSE' ? `Port ${port} is already in use. Set a different PORT in .env.` : e.message); process.exit(1); });
 }
 module.exports = app; // imported by api/index.js for Vercel
